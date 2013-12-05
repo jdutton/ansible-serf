@@ -3,9 +3,11 @@ Ansible Playbook for Running a Serf Cluster
 
 [![Build Status](https://travis-ci.org/jdutton/ansible-serf.png)](https://travis-ci.org/jdutton/ansible-serf)
 
-This playbook provides the `deploy.yml` play to install a locally provided
-`serf` package and ensure that `serf` agent is running on hosts so that they
-are joined to the `serf` cluster.
+This playbook provides the `deploy.yml` play to install and launch the [serf](http://www.serfdom.io)
+agent.
+
+The [serf pre-built binary packages](http://www.serfdom.io/downloads.html) are downloaded and
+cached locally.
 
 # Prerequisites
 
