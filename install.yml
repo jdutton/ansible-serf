@@ -1,0 +1,30 @@
+---
+# Play: Install serf
+# 
+# If serf is not installed, push the serf package and install it.
+
+- hosts: all:!localhost
+
+  vars_files:
+    # Defines the serf version
+    - [ "config/default.yml" ]
+
+  tasks:
+    - name: Check if serf is installed
+      command: "{{serf_exe}} --version"
+      register: is_installed
+      ignore_errors: True
+      changed_when: False
+
+    - name: Test serf version
+      shell: "{{serf_exe}} --version | grep Serf | sed -e 's/Serf v//'"
+      register: has_version
+      ignore_errors: True
+      when: is_installed|success
+      changed_when: False
+
+    - name: Push and unzip serf {{serf_version}} executable to /usr/local/bin
+      unarchive: >
+        src=pkgs/serf-{{serf_version}}-{{ansible_system}}-{{ansible_architecture}}.zip
+        dest=/usr/local/bin
+      when: is_installed|failed or has_version.stdout != serf_version

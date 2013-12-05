@@ -1,0 +1,49 @@
+---
+# Play: Download Serf packages
+# 
+# Download the desired serf version (if necessary), caching packages in the local "pkg" directory
+# with the filename "serf-{{serf_version}}-{{ansible_system}}-{{ansible_architecture}}.zip".
+#
+# We run this on the localhost and serialize the downloads so we're not trying to download
+# the same file for each host at the same time.
+#
+# If the ansible localhost system has no internet access, manually create these files in the
+# pkgs directory, and the download will not even be attempted.
+
+- hosts: localhost
+  connection: local
+
+  vars_files:
+    # Defines the serf version
+    - [ "config/default.yml" ]
+
+  # Variables specific to the downloading pre-built binaries
+  vars:
+    serf_download_url_prefix: https://dl.bintray.com/mitchellh/serf/
+
+    # Don't think we can just lowercase variables in Ansible, so that's what this map does...
+    serf_system:
+      Linux:    linux
+      Darwin:   darwin
+      Windows:  windows
+
+    serf_architecture:
+      x86_64:   amd64
+      i386:     386
+      arm:      arm
+  
+    # E.g. https://dl.bintray.com/mitchellh/serf/0.2.1_linux_amd64.zip
+    serf_download_url: 
+
+  tasks:
+    - name: Create local packages directory
+      file: path=pkgs state=directory
+
+    - name: Download serf {{ serf_version }} packages
+      get_url: >
+        url={{serf_download_url_prefix}}{{serf_version}}_{{serf_system[item.system]}}_{{serf_architecture[item.arch]}}.zip
+        dest=pkgs/serf-{{serf_version}}-{{item.system}}-{{item.arch}}.zip
+      with_items:
+        - { system: "Linux",  arch: "x86_64" }
+        - { system: "Linux",  arch: "i386" }
+        - { system: "Darwin", arch: "x86_64" }

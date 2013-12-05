@@ -1,0 +1,34 @@
+---
+# Play: Start the serf agent
+# 
+# Configure an init script and use it to start the serf agent with the appropriate config.
+
+- hosts: all:!localhost
+
+  vars_files:
+    # Defines the serf version
+    - [ "config/default.yml" ]
+
+  tasks:
+    - name: Create init template
+      register: template
+      template: >
+        src=templates/serf-init.sh.j2
+        dest=/etc/init.d/serf-agent
+        mode=755
+        owner=root
+        group=root
+
+    - name: Stop serf agent
+      command: service serf-agent stop
+      when: template|changed
+
+    - name: Check for running serf agent
+      register: serf_agent_status
+      command: service serf-agent status
+      ignore_errors: True
+      changed_when: serf_agent_status|failed
+
+    - name: Start serf agent
+      command: service serf-agent start
+      when: serf_agent_status|failed

@@ -1,0 +1,15 @@
+---
+
+# Version of serf to install
+serf_version:  0.2.1
+
+serf_path: /usr/local/bin
+
+serf_exe: "{{ serf_path }}/serf"
+
+serf_role:
+
+serf_log_level: info
+
+serf_rpc_port:  7373
+serf_bind_port: 7946
